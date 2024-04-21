@@ -4,6 +4,8 @@ let sheet_range = 'A1:F1000';
 
 let full_url = 'https://docs.google.com/spreadsheets/d/' + sheet_id + '/gviz/tq?sheet=' + sheet_title + '&range=' + sheet_range;
 
+
+
 fetch(full_url)
 .then(res => res.text())
 .then(rep => {
@@ -20,6 +22,7 @@ fetch(full_url)
     sendButton.style.visibility = 'hidden'
 
     let hourText = document.createElement("p");
+    let salaryText = document.createElement("p");
     var userLastRow = 0;
 
     setInterval(function() {
@@ -28,6 +31,10 @@ fetch(full_url)
         var monthlyHours = 0;
         var oneMonthAgo = new Date();
         oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+
+        var salary = 0.0;
+        var baseSalary = 1100.0;
+        var hoursExpected = 80;
 
         for(let i = data.table.rows.length - 1; i >= 0; i--){
             if(searchValue == data.table.rows[i].c[3].v && data.table.rows[i].c[4].v == "Fechado") {
@@ -106,7 +113,10 @@ fetch(full_url)
 
                 console.log("Horas trabalhadas no mês: " + monthlyHours + "Horas trabalhadas para ser adicionadas nisto: " + hoursWorked);
 
+                calculateSalary();
+
                 hourText.innerHTML = "Horas trabalhadas neste mês: " + monthlyHours.toFixed(2);
+                salaryText.innerHTML = "Salário este mês: R$" + salary.toFixed(2);
 
                 console.log(" ");
                 console.log(" ");
@@ -117,18 +127,12 @@ fetch(full_url)
         }
 
         function calculateSalary(){
-            var monthlyHours = 0;
-            var oneMonthAgo = new Date();
-            oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
-
-            //console.log("Mês passado: "+ oneMonthAgo);
-            console.log(userLastRow);
-
-            for(let i = userLastRow; i >= 1; i--){
-                
+            if(monthlyHours > hoursExpected){
+                salary = (hoursExpected / hoursExpected) * baseSalary;
+            } else{
+                salary = (monthlyHours / hoursExpected) * baseSalary;
             }
-
-            
+            return salary;
         }
 
         function getUserLastRow(){
@@ -148,4 +152,6 @@ fetch(full_url)
     }, 500);
 
     document.getElementById("information").appendChild(hourText);
+    document.getElementById("information").appendChild(salaryText);
 }); 
+
